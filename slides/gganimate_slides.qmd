@@ -1,0 +1,395 @@
+---
+format:
+  revealjs:
+    footer: "Tanya Shapiro | R-Ladies Cambridge"
+    theme: "theme.scss"
+    slide-number: true
+    embed-resources: true
+    self-contained: TRUE
+---
+
+##  {#TitleSlide data-menu-title="TitleSlide" background-color="white" background-image="../images/title-slide.png" background-position="center center" background-size="cover"}
+
+```{r, echo=FALSE, include=FALSE}
+
+library(tidyverse)
+library(ggiraph)
+library(geomtextpath)
+library(ggrepel)
+library(glue)
+
+source("../helper-code/functions.R")
+df <- read.csv("../data/airline_delays.csv")
+source("../helper-code/preprocessing.R")
+
+color = 'black'
+
+```
+
+## Hi I'm Tanya!
+
+```{=html}
+<div class="about-me" style="display:flex;align-items:center;">
+<img src="../images/tanya-headshot.jpeg">
+  <div style='margin-left:30px;'>
+    <ul>
+        <li>Independent data consultant, specializing in data analysis and visualization design</li>
+      <li>Previously worked in insurance industry</li>
+      <li>Fell in love with R via <a href='https://github.com/rfordatascience/tidytuesday'>#TidyTuesday</a></li>
+      <li>Data geek based in St. Pete, FL</li>
+    </ul>
+  </div>
+</div>
+   <div class="social-icons">
+      <a href="https://github.com/tashapiro"><i class="fab fa-github"></i></a>
+      <a href="https://twitter.com/tanya_shapiro"><i class="fab fa-twitter"></i></a>
+      <a href="https://www.linkedin.com/in/shapirotanya/"><i class="fab fa-linkedin"></i></a>
+      <a href="https://mastodon.social"><i class="fab fa-mastodon"></i></a>
+      <a href="www.tanyaviz.com"><i class="fas fa-globe"></i></a>
+    </div>
+
+<style>
+  
+  .about-me {
+    margin-top:50px;
+    vertical-align:middle;}
+    
+    
+  .social-icons {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    font-size:1.2em;
+    width:50%;
+    margin-left:200px;
+  }
+  
+  .social-icons a {
+    display: inline-flex;
+    margin-left:15px;
+    margin-right:15px;
+  }
+  
+
+
+  .about-me img {
+      width: 220px!important;
+      height:220px;
+      clip-path: inset(0 0 0 0 round 50%);
+  }
+</style>
+```
+## Use Cases for Interactive Viz
+
+```{=html}
+
+<div class="cards">
+ <div class="card">
+    <img src="https://assets3.cbsnewsstatic.com/hub/i/r/2014/01/16/66f73702-0465-430d-9698-9255a4e70797/thumbnail/1200x630/83a424c59420306838277bb07d3a8b28/Sherlock%20Holmes%20Basil%20Rathbone%20baskervilles.jpg" alt="Exploring Data">
+    <div class='card-title'>Exploring Data</div>
+    <p>Useful for EDA projects to uncover more details about the data.</p>
+  </div>
+  <div class="card">
+    <img src="https://marketoonist.com/wp-content/uploads/2019/11/191111.roi_.jpg" alt="Dashboarding">
+    <div class='card-title'>Dashboarding</div>
+    <p>Great for dashboards or data applications like Shiny.</p>
+  </div>
+  <div class="card">
+    <img src="../images/rapper-vocab.png" alt="Interactive Storytelling">
+    <div class='card-title'>More Storytelling Tricks</div>
+    <p>For online mediums, invite audience to engage with visual content.</p>
+  </div>
+  </div>
+
+<style>
+
+  .cards {
+  height:100%;
+  width:100%;
+  display:flex;
+  justify-content:space-between;
+}
+
+   .card {
+      background-color:whitesmoke!important;
+      width: 30%;
+      height:75%;
+      border-radius: 8px;
+      border: 1px #CCCCCC solid;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      background-color: #ffffff;
+      display: inline-block;
+      vertical-align: top;
+      text-align: center;
+    }
+    
+    .card-title {
+     height:15%;
+     display:inline-flex;
+     align-items:center;
+     font-size:0.85em;
+     font-weight:bold;
+}
+    
+   .card img {
+      width: 100%;
+      height: 40%;
+      max-width:none;
+      margin:0%;
+      object-fit: cover;
+      object-position: top;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+    }
+    
+    
+    .card p {
+    font-size:0.7em;
+    padding: 0px 15px 0px 15px;
+}
+
+.card-body {
+  padding-left:20px;
+  padding-right:20px;
+}
+    
+</style>
+```
+## My own learning journey
+
+![The beginning my interactive data viz journey. I wanted to experiment and test out interactive elements without committing to learning a totally new language or library.](../images/crossroads.png){fig-align="center"}
+
+## `ggiraph` enters the chat
+
+```{=html}
+
+<div class='content'>
+
+<div class='text' style='margin-right:8%;width:52%'>
+
+<ul style='width:100%'>
+
+
+  <li><strong>What is it?</strong> Extension package for <code>ggplot2</code> that allows users to create dynamic plots</li>
+
+  <li><strong>Interactivity</strong> Hover events, click events, tooltips</li>
+  
+  <li><strong>Export</strong> Use as stand-alone htmlwidget, embed in Quarto HTML doc, or as a Shiny output</li>
+
+  </ul>
+</div>
+<div class='image' style='width:40%'>
+
+<img src='../images/spiderman-ggplot.png'>
+</div>
+
+</div>
+
+<style>
+
+ .content{
+
+  display:flex;
+
+}
+
+.image {
+  display:flex;
+  align-items:center;
+}
+
+
+</style>
+```
+## Today we'll learn...
+
+```{=html}
+<div class="blocks">
+  <div class="block" data-step="1"><i class="fas fa-lightbulb"></i><span>Basic <code>ggiraph</code> concepts</span></div>
+  <div class="block" data-step="2"><i class="fas fa-paint-brush"></i><span>Enough CSS to get by</div>
+  <div class="block" data-step="3"><i class="fas fa-info-circle"></i><span>How to add tooltips to <code>ggplot2</code></span></div>
+  <div class="block" data-step="4"><i class="fas fa-mouse"></i><span>How to create hover events</span></div>
+</div>
+
+<em>We'll run through 2 examples together to see it all in action</em>
+```
+## `ggiraph` interactive geoms
+
+**Total of 50 interactive geoms!** Consistent naming convention to match ggplot2 geoms
+
+| ggplot2      |     | ggiraph                  |
+|--------------|-----|--------------------------|
+| `geom_point` | ➡️  | `geom_point_interactive` |
+| `geom_text`  | ➡️  | `geom_text_interactive`  |
+| `geom_line`  | ➡️  | `geom_line_interactive`  |
+| `geom_tile`  | ➡️  | `geom_tile_interactive`  |
+
+## `ggiraph` geom parameters
+
+Parameters for interactive geoms are similar to their ggplot2 counterparts, and include new [interactive parameters](https://davidgohel.github.io/ggiraph/reference/interactive_parameters.html) such as:
+
+-   **`data_id`**: [mandatory]{.underline}, can be associated to one or more element. informs which elements interactive components are applied to
+
+-   **`hover_css`**: how we style element on hover (CSS)
+
+-   **`tooltip`**: tooltip text, can be passed in as string or formatted with HTML
+
+-   **`tooltip_fill`**: color for tooltip background
+
+## `ggiraph` `girafe` 🦒
+
+Once we've assembled our ggplot, we'll need to create the htmlwidget by wrapping the plot in [`girafe()`](https://davidgohel.github.io/ggiraph/reference/girafe.html). In this step, we can also control hover stylings for our geoms by mapping `options` to a list of arguments such as:
+
+-   **`opts_hover`**: default CSS style applied to all geom elements with the same data_id
+-   **`opts_hover_inv`**: default CSS style applied to all other geoms (inverse)
+-   **`opts_tooltip`**: default CSS for all tooltips
+
+# `ggiraph` in action
+
+## Ex. 1: Tooltips on Hover
+
+```{r}
+#| output-location: slide
+#| echo: true
+#| code-line-numbers: "2-6|11-21|51-57"
+
+#setting up tooltip to map to geom, used with glue
+tooltip<-"<div>
+<span style='font-weight:bold;'>Total Flights: </span>{format(flights, big.mark=',')}<br>
+<span style='font-weight:bold;'>Delays: </span>{format(delays, big.mark=',')}<br>
+<span style='font-weight:bold;'>Perc Flights Delayed: </span>{round(delay_perc*100,2)}%<br>
+</div>"
+
+scatter_plot<-ggplot(data=annual_by_carrier)+
+  geom_hline(mapping=aes(yintercept=mean(delay_perc)),
+             linetype="dashed", linewidth=0.7, color="grey30")+
+   geom_point_interactive(
+    mapping = aes(data_id = carrier_name,
+                  x=flights/1000, 
+                  y=delay_perc,
+                  tooltip = glue(tooltip),
+                  hover_css = paste0("fill:",color)),
+    size=4,
+    shape = 21,
+    fill="#2CA8F0",
+    color="white"
+  )+
+  geom_text_repel(
+    mapping = aes(x=flights/1000, y=delay_perc, label=carrier_name),
+    size=2, color="grey30"
+  )+
+  annotate(geom="text", 
+           x=1300, y=mean(annual_by_carrier$delay_perc)-0.02, 
+           hjust=1, size=3, 
+           label=paste0("Average: ",round(mean(annual_by_carrier$delay_perc)*100,1),"%"),
+           family="Roboto")+
+  labs(title="U.S. Domestic Flight Delays by Carrier 2022",
+       x = "Total Flights (thousands)", y="% of Flights Delayed",
+       caption = "Source: Bureau of Transportation Statistics")+
+  scale_y_continuous(labels=scales::label_percent(),
+                     limits = c(0,.4))+
+  scale_x_continuous(breaks=c(250, 500, 750, 1000, 1250))+
+  theme(text = element_text(family="Roboto"),
+        plot.title = element_text(face="bold"),
+        plot.caption = element_text(hjust=0, color="grey50", size=6),
+        panel.background = element_blank(),
+        axis.line.x = element_line(),
+        axis.ticks = element_blank(),
+        axis.text = element_text(family="Roboto Mono"),
+        axis.title = element_text(size=8),
+        axis.title.y = element_text(margin=margin(r=10)),
+        axis.title.x = element_text(margin=margin(t=10)),
+        panel.grid = element_blank()
+       )
+
+
+girafe(ggobj = scatter_plot, 
+       width_svg = 6, 
+       height_svg = 3.5, 
+       options = list(
+         opts_toolbar(saveaspng = FALSE),
+         opts_tooltip(css = 'font-family:Roboto;background-color:black;border-radius:5px;color:white;padding:10px;')
+))
+```
+
+## Ex. 2: More Style Options on Hover
+
+```{r}
+#| output-location: slide
+#| echo: true
+#| code-line-numbers: "4-21|51-68"
+
+line_plot<-ggplot()+
+  geom_segment(mapping=aes(x=1, xend=12, y=0, yend=0),
+               linewidth=1)+
+  geom_line_interactive(
+    data=monthly_delays_carrier, 
+    mapping=aes(
+      data_id = carrier_name,
+      x=month,
+      y=delay_perc,
+      group = carrier_name
+  ),
+    color = "grey", linewidth = 0.75)+
+  geom_text_interactive(
+    data = airline_labels,
+    mapping=aes(
+      data_id= carrier_name,
+      x=month+.1, 
+      y=label_y, 
+      label=carrier_name),
+    color = "grey",
+    hjust=0, family="Roboto", size=3)+
+  geomtextpath::geom_textline(
+    data=monthly_delays_total, 
+    mapping=aes(x=month, y=delay_perc, group=1, label="All Carriers"),
+    vjust = -0.3, 
+    hjust = 0.02,
+    linewidth=1,
+    size = 3,
+    fontfamily="Roboto"
+  )+
+  labs(title = "Flight Delay Seasonality 2022",
+       subtitle = "Perecentage of flight delays month over month by carrier.",
+       caption = "Source: Bureau of Transportation Statistics")+
+  scale_y_continuous(limits=c(0,.45), 
+                     expand = c(0,0),
+                     labels = scales::label_percent())+
+  scale_x_continuous(limits=c(1,13.5),
+                     breaks = 1:12, 
+                     labels = month.abb[1:12])+
+  theme(
+    legend.position = "top",
+    text = element_text(family="Roboto"),
+    plot.title = element_text(face="bold"),
+    plot.caption = element_text(hjust=0, color="grey40", size=6, margin=margin(t=10)),
+    panel.background = element_blank(),
+    axis.ticks = element_blank(),
+    axis.title = element_blank(),
+    axis.text = element_text(family="Roboto Mono", size=8))
+
+
+ggiraph::girafe(ggobj = line_plot, 
+                width_svg = 6, 
+                height_svg = 3.5,
+                #list of default styling options
+                options = list(
+                  opts_toolbar(saveaspng = FALSE),
+                  opts_hover(
+                    css = girafe_css(
+                      text = "stroke:none!important;font-weight:bold;fill:#2CA8F0;",
+                      css= "stroke:#2CA8F0;opacity:1;stroke-width:1.75"
+                    )),
+                  opts_hover_inv(
+                    css = girafe_css(
+                      css = "opacity:0.3;"
+                    )
+                  ))
+)
+```
+
+## Thank You!
+
+We will now open it up for Q&A
+
+![](../images/thank-you.gif){fig-align="center"}

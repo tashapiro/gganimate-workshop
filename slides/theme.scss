@@ -1,0 +1,38 @@
+/*-- scss:defaults --*/
+
+$font-family-sans-serif: "Roboto";
+$primary-color: #2CA8F0;
+$code-color:#15B55A;
+
+ .blocks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.block i {
+  margin-right: 20px;
+  margin-left:10px;
+}
+
+.block {
+  border-radius:10px;
+  height:60px;
+  flex: 1 1 calc(50% - 20px); /* changed */
+  background-color: $primary-color;
+  color: white;
+  margin: 1%;
+  padding: 2%;
+  opacity: 1;
+  transition: opacity 0.5s;
+  display: flex; /* added */
+  justify-content: left; /* added */
+  align-items: center; /* added */
+  text-align: left; /* added */
+}
+
+.block code {
+  color: whitesmoke !important;
+}
+
+@import url("https://use.fontawesome.com/releases/v5.15.3/css/all.css");
